@@ -8,6 +8,12 @@ From: ubuntu:24.04
         ca-certificates curl git ripgrep jq less procps unzip xz-utils zstd python3 \
         kitty-terminfo
     rm -rf /var/lib/apt/lists/*
+    # elan in the image, the toolchains in ~/.elan of the home: each
+    # project names its own (lean-toolchain), which elan installs at the
+    # first use. Read-only here, so elan is updated by a new image.
+    curl -fsSL https://elan.lean-lang.org/elan-init.sh | ELAN_HOME=/opt/elan \
+        sh -s -- -y --default-toolchain none --no-modify-path
+    ln -s /opt/elan/bin/* /usr/local/bin/
 
 %environment
     export LANG=C.UTF-8

@@ -14,8 +14,12 @@ proxy settings, `LEAN_NUM_THREADS` and the job information of Slurm
 `SLURM_JOB_ID`, `SLURM_CPUS_PER_TASK`, `SLURM_MEM_PER_NODE`,
 `SLURM_JOB_END_TIME` pass: Lean would count the cores of the node, not
 of the allocation, without `LEAN_NUM_THREADS`). The network is open, as Claude
-Code needs its API. Claude Code, its login and the toolchains (e.g.
-elan) live in the home, and Claude Code updates itself there.
+Code needs its API. Claude Code, its login and the toolchains live in
+the home, and Claude Code updates itself there. The image has elan (the
+Lean toolchain manager; new versions come with a new image), which
+installs the toolchain a project names in `lean-toolchain` into
+`~/.elan` of the home when it is first used: about 3 GB per Lean
+version.
 
 A fish package (fisher layout): `kontti build` and `kontti install` run
 on your machine; the launcher `kontti.sh` is POSIX sh, so the host
