@@ -21,7 +21,7 @@ installs the toolchain a project names in `lean-toolchain` into
 `~/.elan` of the home when it is first used: about 3 GB per Lean
 version. Likewise uv for Python: `uv sync` installs the Python of
 `requires-python` (`.python-version`) into the home and the project's
-dependencies into its `.venv`.
+dependencies into its `.venv`. `examples/` has a Hello world of each.
 
 A fish package (fisher layout): `kontti build` and `kontti install` run
 on your machine; the launcher `kontti.sh` is POSIX sh, so the host
