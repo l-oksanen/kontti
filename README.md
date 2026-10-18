@@ -101,10 +101,16 @@ git fetch --upload-pack='bin/kontti exec git-upload-pack' HOST:/home/me/claude/w
    to run in a job: tmux on the login node, and in it e.g. `srun --pty
    ... kontti claude`. Check that apptainer and the network work on the
    compute nodes; proxy settings (`http_proxy` and the like, e.g. from a
-   module) reach the container. For 24-bit colours in tmux, tell tmux that the
-   terminal takes them (`tmux set -sa terminal-overrides ",$TERM:Tc"`,
-   with the `TERM` of your terminal) and give Claude Code
-   `COLORTERM=truecolor` (ssh does not pass it).
+   module) reach the container. For 24-bit colours in tmux, tmux must
+   know that the terminal takes them, and Claude Code needs
+   `COLORTERM=truecolor` (ssh does not pass it), e.g. in `~/.tmux.conf`
+   of the host (here for kitty; `mouse` scrolls with the wheel):
+
+   ```
+   set -sa terminal-overrides ',xterm-kitty:Tc'
+   set-environment -g COLORTERM truecolor
+   set -g mouse on
+   ```
 4. Hooks stay inside: in a repo of the home, a `post-receive` hook that
    writes a file outside the home must fail when pushed to as above.
    Check on the host, not in the hook's output: inside the container,
