@@ -96,10 +96,12 @@ function _kontti_install --argument-names dir host
             if infocmp "$1" >/dev/null 2>&1; then
                 cat >/dev/null
             else
-                t=$(mktemp) && cat >"$t" && tic -x -o ~/.terminfo "$t" &&
+                # tic warns about entries that it installs well enough
+                t=$(mktemp) && cat >"$t" && tic -x -o ~/.terminfo "$t" 2>"$t.err" &&
                     echo "Installed the terminfo entry of $1 in ~/.terminfo"
                 s=$?
-                rm -f "$t"
+                [ $s -eq 0 ] || cat "$t.err" >&2
+                rm -f "$t" "$t.err"
                 exit $s
             fi' | string collect) sh (_kontti_quote $TERM)
         or return 1
