@@ -1,0 +1,14 @@
+Bootstrap: docker
+From: ubuntu:24.04
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        ca-certificates curl git ripgrep jq less procps unzip xz-utils zstd python3 \
+        kitty-terminfo
+    rm -rf /var/lib/apt/lists/*
+
+%environment
+    export LANG=C.UTF-8
+    export PATH="$HOME/.local/bin:$HOME/.elan/bin:$PATH"

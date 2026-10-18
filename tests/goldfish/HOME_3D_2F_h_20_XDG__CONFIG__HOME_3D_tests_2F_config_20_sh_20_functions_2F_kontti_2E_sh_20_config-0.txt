@@ -1,0 +1,2 @@
+home=/h/kh
+image=/img/k.sif

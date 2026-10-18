@@ -1,0 +1,1 @@
+Usage: kontti config [home | image]

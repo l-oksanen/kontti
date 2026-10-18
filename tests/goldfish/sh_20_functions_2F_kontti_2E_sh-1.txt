@@ -1,0 +1,22 @@
+Run Claude Code in a container that sees only its own home directory
+
+USAGE
+    kontti claude [ARG...]
+        Claude Code, installed into the home first if missing
+    kontti shell
+        bash
+    kontti exec COMMAND [ARG...]
+        COMMAND
+    kontti config [home | image]
+        Print the settings (home and image), or one of them
+
+The container's home is a directory of the host (default ~/claude),
+mounted at the same path; nothing else of the host is visible, nor its
+environment. The working directory is the current one if it is in the
+home, the home otherwise. /tmp is ${TMPDIR:-/tmp}/kontti-$USER of the
+host, shared by the containers of the user.
+
+Settings, in ${XDG_CONFIG_HOME:-~/.config}/kontti/config, lines NAME=VALUE
+(a leading ~/ is the home of the host):
+    home=~/claude
+    image=~/images/kontti.sif

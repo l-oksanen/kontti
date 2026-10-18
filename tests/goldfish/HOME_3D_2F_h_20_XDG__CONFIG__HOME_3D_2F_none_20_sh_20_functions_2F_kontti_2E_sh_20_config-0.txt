@@ -1,0 +1,2 @@
+home=/h/claude
+image=/h/images/kontti.sif

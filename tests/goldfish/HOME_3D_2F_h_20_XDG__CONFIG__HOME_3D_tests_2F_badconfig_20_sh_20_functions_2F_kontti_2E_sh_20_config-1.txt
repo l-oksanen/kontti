@@ -1,0 +1,1 @@
+kontti: unknown setting 'foo' in tests/badconfig/kontti/config
