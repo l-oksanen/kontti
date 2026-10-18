@@ -23,9 +23,9 @@ version. Likewise uv for Python: `uv sync` installs the Python of
 `requires-python` (`.python-version`) into the home and the project's
 dependencies into its `.venv`. `examples/` has a Hello world of each.
 
-A fish package (fisher layout): `kontti build` and `kontti install` run
-on your machine; the launcher `kontti.sh` is POSIX sh, so the host
-needs only apptainer.
+A fish package ([fisher](https://github.com/jorgebucaran/fisher)
+layout): `kontti build` and `kontti install` run on your machine; the
+launcher `kontti.sh` is POSIX sh, so the host needs only apptainer.
 
 ## Install
 
