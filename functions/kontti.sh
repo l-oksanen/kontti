@@ -19,7 +19,9 @@ USAGE
 
 The container's home is a directory of the host (default ~/claude),
 mounted at the same path; nothing else of the host is visible, nor its
-environment. The working directory is the current one if it is in the
+environment, but TERM, COLORTERM, the proxy settings, LEAN_NUM_THREADS
+and the job's SLURM_JOB_ID, SLURM_CPUS_PER_TASK, SLURM_MEM_PER_NODE and
+SLURM_JOB_END_TIME. The working directory is the current one if it is in the
 home, the home otherwise. /tmp is ${TMPDIR:-/tmp}/kontti-$USER of the
 host, shared by the containers of the user.
 
@@ -115,12 +117,22 @@ case $here/ in
 esac
 
 # Replaces the shell: in a subshell for anything but the last command
+# Passed into the clean environment, if set: values without commas.
+# Lean counts the cores of the node, not of a Slurm allocation, unless
+# LEAN_NUM_THREADS says otherwise.
+env=
+for name in COLORTERM LEAN_NUM_THREADS SLURM_JOB_ID SLURM_CPUS_PER_TASK \
+    SLURM_MEM_PER_NODE SLURM_JOB_END_TIME; do
+    eval "value=\${$name-}"
+    [ -n "$value" ] && env=$env${env:+,}$name=$value
+done
+
 # --no-mount bind-paths drops the site's binds, and with them the name
 # resolution and time zone files that apptainer would otherwise copy in
 container() {
     exec apptainer exec --containall --no-mount bind-paths \
         --bind /etc/resolv.conf:/etc/resolv.conf:ro,/etc/hosts:/etc/hosts:ro,/etc/localtime:/etc/localtime:ro \
-        --home "$home" --workdir "$tmp" ${COLORTERM:+--env "COLORTERM=$COLORTERM"} "$@"
+        --home "$home" --workdir "$tmp" ${env:+--env "$env"} "$@"
 }
 case $command in
     claude)

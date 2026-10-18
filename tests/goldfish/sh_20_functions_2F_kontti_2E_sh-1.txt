@@ -12,7 +12,9 @@ USAGE
 
 The container's home is a directory of the host (default ~/claude),
 mounted at the same path; nothing else of the host is visible, nor its
-environment. The working directory is the current one if it is in the
+environment, but TERM, COLORTERM, the proxy settings, LEAN_NUM_THREADS
+and the job's SLURM_JOB_ID, SLURM_CPUS_PER_TASK, SLURM_MEM_PER_NODE and
+SLURM_JOB_END_TIME. The working directory is the current one if it is in the
 home, the home otherwise. /tmp is ${TMPDIR:-/tmp}/kontti-$USER of the
 host, shared by the containers of the user.
 

@@ -9,8 +9,11 @@ credentials.
 The container's home is a directory of the host, `~/claude` by default,
 mounted at the same path. Nothing else of the host is visible: not your
 home, not the site's own binds (`/scratch`, `/projappl`, ...), not your
-environment (`SSH_AUTH_SOCK` among it; only `TERM`, `COLORTERM` and
-the proxy settings pass). The network is open, as Claude
+environment (`SSH_AUTH_SOCK` among it; only `TERM`, `COLORTERM`, the
+proxy settings, `LEAN_NUM_THREADS` and the job information of Slurm
+`SLURM_JOB_ID`, `SLURM_CPUS_PER_TASK`, `SLURM_MEM_PER_NODE`,
+`SLURM_JOB_END_TIME` pass: Lean would count the cores of the node, not
+of the allocation, without `LEAN_NUM_THREADS`). The network is open, as Claude
 Code needs its API. Claude Code, its login and the toolchains (e.g.
 elan) live in the home, and Claude Code updates itself there.
 
@@ -98,7 +101,10 @@ git fetch --upload-pack='bin/kontti exec git-upload-pack' HOST:/home/me/claude/w
    to run in a job: tmux on the login node, and in it e.g. `srun --pty
    ... kontti claude`. Check that apptainer and the network work on the
    compute nodes; proxy settings (`http_proxy` and the like, e.g. from a
-   module) reach the container.
+   module) reach the container. For 24-bit colours in tmux, tell tmux that the
+   terminal takes them (`tmux set -sa terminal-overrides ",$TERM:Tc"`,
+   with the `TERM` of your terminal) and give Claude Code
+   `COLORTERM=truecolor` (ssh does not pass it).
 4. Hooks stay inside: in a repo of the home, a `post-receive` hook that
    writes a file outside the home must fail when pushed to as above.
    Check on the host, not in the hook's output: inside the container,
