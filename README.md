@@ -30,11 +30,11 @@ apptainer config fakeroot --add $USER`).
 ## Use
 
 ```fish
-kontti build          # ~/images/kontti.sif from kontti.def
-kontti install HOST   # ~/.local/bin/kontti and the image on HOST, over ssh
+kontti build          # the image, from kontti.def
+kontti install HOST   # ~/bin/kontti and ~/images/kontti.sif on HOST, over ssh
 ```
 
-On the host:
+On the host (`~/bin/kontti`, unless `~/bin` is on `PATH`):
 
 ```sh
 kontti claude [ARG...]      # Claude Code, installed at the first run
@@ -45,15 +45,18 @@ kontti config               # the settings
 
 The working directory is the current one if it is inside the home, the
 home otherwise. `/tmp` is `${TMPDIR:-/tmp}/kontti-$USER` of the host.
-Settings, in `~/.config/kontti/config` of each machine (`~/` allowed):
+The settings, with their defaults, can be changed in
+`~/.config/kontti/config` of each machine (`~/` allowed):
 
 ```
 home=~/claude
-image=~/images/kontti.sif
+image=~/.local/share/kontti/kontti.sif
 ```
 
-`kontti build` writes the image where the local settings say;
-`kontti install` asks the launcher on the host where its image goes.
+The image is in `$XDG_DATA_HOME` if that is set. `kontti install` makes
+`~/images/kontti.sif` the default image of the launcher on the host.
+`kontti build` writes the image where the local launcher looks for it,
+`kontti install` where the launcher on the host does.
 The launcher and the image stay outside the home, where Claude could
 change them.
 
@@ -67,8 +70,8 @@ which runs its hooks: give git the launcher, and the absolute path,
 which is the same inside and outside:
 
 ```sh
-git push --receive-pack='.local/bin/kontti exec git-receive-pack' HOST:/home/me/claude/work/repo ...
-git fetch --upload-pack='.local/bin/kontti exec git-upload-pack' HOST:/home/me/claude/work/repo ...
+git push --receive-pack='bin/kontti exec git-receive-pack' HOST:/home/me/claude/work/repo ...
+git fetch --upload-pack='bin/kontti exec git-upload-pack' HOST:/home/me/claude/work/repo ...
 ```
 
 ## Checking a new host

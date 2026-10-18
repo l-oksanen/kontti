@@ -19,4 +19,6 @@ host, shared by the containers of the user.
 Settings, in ${XDG_CONFIG_HOME:-~/.config}/kontti/config, lines NAME=VALUE
 (a leading ~/ is the home of the host):
     home=~/claude
-    image=~/images/kontti.sif
+    image=${XDG_DATA_HOME:-~/.local/share}/kontti/kontti.sif
+`kontti install` makes ~/images/kontti.sif the default image on the
+host.

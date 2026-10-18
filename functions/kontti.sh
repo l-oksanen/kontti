@@ -1,7 +1,7 @@
 #!/bin/sh
 # kontti: run Claude Code in an apptainer container that sees only its
-# own home directory. Installed as ~/.local/bin/kontti by
-# `kontti install HOST`; POSIX sh, so that the host needs no fish.
+# own home directory. Installed as ~/bin/kontti by `kontti install
+# HOST`; POSIX sh, so that the host needs no fish.
 
 usage() {
     cat <<'EOF'
@@ -26,7 +26,9 @@ host, shared by the containers of the user.
 Settings, in ${XDG_CONFIG_HOME:-~/.config}/kontti/config, lines NAME=VALUE
 (a leading ~/ is the home of the host):
     home=~/claude
-    image=~/images/kontti.sif
+    image=${XDG_DATA_HOME:-~/.local/share}/kontti/kontti.sif
+`kontti install` makes ~/images/kontti.sif the default image on the
+host.
 EOF
 }
 
@@ -40,8 +42,9 @@ usage_error() {
     exit 1
 }
 
+# kontti install replaces the line of image
 home=~/claude
-image=~/images/kontti.sif
+image=${XDG_DATA_HOME:-$HOME/.local/share}/kontti/kontti.sif
 config=${XDG_CONFIG_HOME:-$HOME/.config}/kontti/config
 if [ -f "$config" ]; then
     while IFS='=' read -r name value; do

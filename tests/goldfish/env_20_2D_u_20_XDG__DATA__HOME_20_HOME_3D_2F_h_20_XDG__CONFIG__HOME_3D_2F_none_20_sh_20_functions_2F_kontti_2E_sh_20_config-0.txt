@@ -1,0 +1,2 @@
+home=/h/claude
+image=/h/.local/share/kontti/kontti.sif

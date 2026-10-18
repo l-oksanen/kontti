@@ -5,8 +5,9 @@ USAGE
         Build the image from kontti.def, where the launcher here looks
         for it
     kontti install HOST
-        Install the launcher as ~/.local/bin/kontti on HOST (over ssh),
-        and the image where the launcher there looks for it
+        Install the launcher as ~/bin/kontti on HOST (over ssh), with
+        ~/images/kontti.sif as its default image, and the image where
+        the launcher there looks for it
     kontti claude | shell | exec | config ...
         Run the launcher here
 
@@ -33,4 +34,6 @@ host, shared by the containers of the user.
 Settings, in ${XDG_CONFIG_HOME:-~/.config}/kontti/config, lines NAME=VALUE
 (a leading ~/ is the home of the host):
     home=~/claude
-    image=~/images/kontti.sif
+    image=${XDG_DATA_HOME:-~/.local/share}/kontti/kontti.sif
+`kontti install` makes ~/images/kontti.sif the default image on the
+host.

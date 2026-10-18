@@ -35,8 +35,9 @@ USAGE
         Build the image from kontti.def, where the launcher here looks
         for it
     kontti install HOST
-        Install the launcher as ~/.local/bin/kontti on HOST (over ssh),
-        and the image where the launcher there looks for it
+        Install the launcher as ~/bin/kontti on HOST (over ssh), with
+        ~/images/kontti.sif as its default image, and the image where
+        the launcher there looks for it
     kontti claude | shell | exec | config ...
         Run the launcher here
 
@@ -68,20 +69,30 @@ function _kontti_install --argument-names dir host
         echo "kontti: no image $image (kontti build)" >&2
         return 2
     end
-    ssh $host 'mkdir -p .local/bin && cat >.local/bin/kontti.new &&
-        chmod 755 .local/bin/kontti.new && mv .local/bin/kontti.new .local/bin/kontti' \
-        <$dir/kontti.sh
-    or return 1
-    echo "Installed $host:.local/bin/kontti"
-    set -l remote (ssh $host .local/bin/kontti config image)
+    _kontti_launcher $dir | ssh $host 'mkdir -p bin && cat >bin/kontti.new &&
+        chmod 755 bin/kontti.new && mv bin/kontti.new bin/kontti'
+    if test "$pipestatus" != '0 0'
+        return 1
+    end
+    echo "Installed $host:bin/kontti"
+    set -l remote (ssh $host bin/kontti config image)
     or return 1
     set -l q (_kontti_quote $remote)
     set -l qdir (_kontti_quote (path dirname -- $remote))
     ssh $host "mkdir -p $qdir && cat >$q.new && mv $q.new $q" <$image
     or return 1
     echo "Installed $host:$remote"
-    ssh $host .local/bin/kontti exec true
+    ssh $host bin/kontti exec true
     or return 1
+end
+
+function _kontti_launcher --argument-names dir
+    # The launcher for a host, whose default image is ~/images/kontti.sif
+    if test (string match -r -- '^image=' <$dir/kontti.sh | count) -ne 1
+        echo "kontti: $dir/kontti.sh has not one line image=" >&2
+        return 1
+    end
+    string replace -r -- '^image=.*' 'image=~/images/kontti.sif' <$dir/kontti.sh
 end
 
 function _kontti_quote --description 'Quote arguments for a POSIX shell'
