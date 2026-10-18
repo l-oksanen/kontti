@@ -19,7 +19,9 @@ the home, and Claude Code updates itself there. The image has elan (the
 Lean toolchain manager; new versions come with a new image), which
 installs the toolchain a project names in `lean-toolchain` into
 `~/.elan` of the home when it is first used: about 3 GB per Lean
-version.
+version. Likewise uv for Python: `uv sync` installs the Python of
+`requires-python` (`.python-version`) into the home and the project's
+dependencies into its `.venv`.
 
 A fish package (fisher layout): `kontti build` and `kontti install` run
 on your machine; the launcher `kontti.sh` is POSIX sh, so the host

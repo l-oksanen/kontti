@@ -14,6 +14,10 @@ From: ubuntu:24.04
     curl -fsSL https://elan.lean-lang.org/elan-init.sh | ELAN_HOME=/opt/elan \
         sh -s -- -y --default-toolchain none --no-modify-path
     ln -s /opt/elan/bin/* /usr/local/bin/
+    # uv likewise: the Pythons (requires-python) and its cache go to the
+    # home, the venv of a project into the project
+    curl -LsSf https://astral.sh/uv/install.sh | \
+        env UV_INSTALL_DIR=/usr/local/bin UV_NO_MODIFY_PATH=1 sh
 
 %environment
     export LANG=C.UTF-8
