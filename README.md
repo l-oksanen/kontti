@@ -2,13 +2,13 @@
 
 Run Claude Code in an [apptainer](https://apptainer.org) container that
 sees only its own home directory: for hosts shared with others, such as
-an HPC cluster, where files of other users may be writable by anyone,
-and where Claude Code would otherwise run with all your files and
-credentials.
+an HPC cluster, where a careless permission (a file or directory of
+someone left writable by everyone, say) is easily overlooked, and where
+Claude Code would otherwise run with all your files and credentials.
 
 The container's home is a directory of the host, `~/claude` by default,
 mounted at the same path. Nothing else of the host is visible: not your
-home, not the site's own binds (`/scratch`, `/projappl`, ...), not your
+home, not the site's own binds (shared work and project directories), not your
 environment (`SSH_AUTH_SOCK` among it; only `TERM`, `COLORTERM`, the
 proxy settings, `LEAN_NUM_THREADS` and the job information of Slurm
 `SLURM_JOB_ID`, `SLURM_CPUS_PER_TASK`, `SLURM_MEM_PER_NODE`,
@@ -92,12 +92,11 @@ git fetch --upload-pack='bin/kontti exec git-upload-pack' HOST:/home/me/claude/w
 ## Checking a new host
 
 1. `kontti install HOST` (here), then on the host `kontti exec sh -c
-   'ls / ~ /home/$USER; env'`: `/` lists only the image, `~` is the
-   home, the directory above it holds only the home, and the
-   environment has nothing of the host's (no `SSH_*`, no work or
-   project directories). Look for the site's own directories too
-   (CSC: `/scratch`, `/projappl`; Turso: `/wrk*`, `/proj*`): they must
-   be missing. A site may forbid `--no-mount bind-paths`; then kontti
+   'ls / ~ ~/..; env'`: `/` lists only the image, `~` is the home, the
+   directory above it holds only the home, and the environment has
+   nothing of the host's (no `SSH_*`, no work or project directories).
+   Look for the site's own directories too (shared work, project and
+   application directories): they must be missing. A site may forbid `--no-mount bind-paths`; then kontti
    fails, and must not be used there as it is.
 2. `kontti claude` in a directory under the home (Claude Code asks for
    trust in the home itself at every start): installs Claude Code; log
