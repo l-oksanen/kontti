@@ -9,7 +9,8 @@ credentials.
 The container's home is a directory of the host, `~/claude` by default,
 mounted at the same path. Nothing else of the host is visible: not your
 home, not the site's own binds (`/scratch`, `/projappl`, ...), not your
-environment (`SSH_AUTH_SOCK` among it). The network is open, as Claude
+environment (`SSH_AUTH_SOCK` among it; only `TERM`, `COLORTERM` and
+the proxy settings pass). The network is open, as Claude
 Code needs its API. Claude Code, its login and the toolchains (e.g.
 elan) live in the home, and Claude Code updates itself there.
 
@@ -57,6 +58,11 @@ The image is in `$XDG_DATA_HOME` if that is set. `kontti install` makes
 `~/images/kontti.sif` the default image of the launcher on the host.
 `kontti build` writes the image where the local launcher looks for it,
 `kontti install` where the launcher on the host does.
+`kontti install` also gives Claude's commits an identity (`Claude
+<noreply@anthropic.com>`, unless the home has one), copies the
+terminfo entry of `$TERM` into `~/.terminfo` of the host if the host
+lacks it (tmux refuses a terminal it does not know, e.g. kitty's), and
+skips the image if the host has the same one.
 The launcher and the image stay outside the home, where Claude could
 change them.
 
@@ -76,16 +82,24 @@ git fetch --upload-pack='bin/kontti exec git-upload-pack' HOST:/home/me/claude/w
 
 ## Checking a new host
 
-1. `kontti install HOST` (here), then on the host `kontti exec ls / ~ /scratch /appl`:
-   `/` lists only the image, `~` is the home, and the site's directories
-   are missing. A site may forbid `--no-mount bind-paths`; then kontti
+1. `kontti install HOST` (here), then on the host `kontti exec sh -c
+   'ls / ~ /home/$USER; env'`: `/` lists only the image, `~` is the
+   home, the directory above it holds only the home, and the
+   environment has nothing of the host's (no `SSH_*`, no work or
+   project directories). Look for the site's own directories too
+   (CSC: `/scratch`, `/projappl`; Turso: `/wrk*`, `/proj*`): they must
+   be missing. A site may forbid `--no-mount bind-paths`; then kontti
    fails, and must not be used there as it is.
-2. `kontti claude`: installs Claude Code; log in with the URL it prints.
-3. `kontti exec git config --global user.name ...` (and `user.email`)
-   for Claude's commits.
-4. Sessions that outlive the connection: `tmux new -A -s NAME 'kontti
-   claude'` on the host. On a cluster, long sessions may have to run in
-   a job, e.g. `srun --pty ... kontti claude` inside tmux: check that
-   apptainer and the network work on the compute nodes.
-5. Hooks stay inside: in a repo of the home, a `post-receive` hook that
+2. `kontti claude` in a directory under the home (Claude Code asks for
+   trust in the home itself at every start): installs Claude Code; log
+   in with the URL it prints.
+3. Sessions that outlive the connection: tmux on the host, e.g. `tmux
+   new -A -s NAME 'kontti claude'`. On a cluster, long sessions may have
+   to run in a job: tmux on the login node, and in it e.g. `srun --pty
+   ... kontti claude`. Check that apptainer and the network work on the
+   compute nodes; proxy settings (`http_proxy` and the like, e.g. from a
+   module) reach the container.
+4. Hooks stay inside: in a repo of the home, a `post-receive` hook that
    writes a file outside the home must fail when pushed to as above.
+   Check on the host, not in the hook's output: inside the container,
+   the directories above the home are scratch directories of apptainer.

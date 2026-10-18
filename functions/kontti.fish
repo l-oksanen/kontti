@@ -37,7 +37,8 @@ USAGE
     kontti install HOST
         Install the launcher as ~/bin/kontti on HOST (over ssh), with
         ~/images/kontti.sif as its default image, and the image where
-        the launcher there looks for it
+        the launcher there looks for it; also the git identity of
+        Claude and the terminfo entry of $TERM, if missing there
     kontti claude | shell | exec | config ...
         Run the launcher here
 
@@ -79,10 +80,37 @@ function _kontti_install --argument-names dir host
     or return 1
     set -l q (_kontti_quote $remote)
     set -l qdir (_kontti_quote (path dirname -- $remote))
-    ssh $host "mkdir -p $qdir && cat >$q.new && mv $q.new $q" <$image
-    or return 1
-    echo "Installed $host:$remote"
-    ssh $host bin/kontti exec true
+    set -l sum (sha256sum <$image | string split -f 1 ' ')
+    if test "$(ssh $host "sha256sum $q 2>/dev/null" | string split -f 1 ' ')" = $sum
+        echo "$host:$remote is up to date"
+    else
+        ssh $host "mkdir -p $qdir && cat >$q.new && mv $q.new $q" <$image
+        or return 1
+        echo "Installed $host:$remote"
+    end
+
+    # tmux and other ncurses programs of the host refuse a terminal they
+    # have no entry for (kitty's xterm-kitty, say)
+    if set -q TERM[1]; and set -l entry (infocmp -x $TERM 2>/dev/null | string collect)
+        echo $entry | ssh $host sh -c (_kontti_quote '
+            if infocmp "$1" >/dev/null 2>&1; then
+                cat >/dev/null
+            else
+                t=$(mktemp) && cat >"$t" && tic -x -o ~/.terminfo "$t" &&
+                    echo "Installed the terminfo entry of $1 in ~/.terminfo"
+                s=$?
+                rm -f "$t"
+                exit $s
+            fi' | string collect) sh (_kontti_quote $TERM)
+        or return 1
+    end
+
+    # The identity of Claude's commits, unless one is set
+    ssh $host bin/kontti exec sh -c (_kontti_quote '
+        git config --global user.name >/dev/null ||
+            git config --global user.name Claude || exit 1
+        git config --global user.email >/dev/null ||
+            git config --global user.email noreply@anthropic.com' | string collect)
     or return 1
 end
 
@@ -96,6 +124,7 @@ function _kontti_launcher --argument-names dir
 end
 
 function _kontti_quote --description 'Quote arguments for a POSIX shell'
+    # One line per argument: an argument with newlines needs string collect
     for arg in $argv
         printf "'%s'\n" "$(string replace -a "'" "'\\''" -- $arg)"
     end

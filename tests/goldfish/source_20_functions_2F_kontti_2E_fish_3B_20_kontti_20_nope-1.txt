@@ -7,7 +7,8 @@ USAGE
     kontti install HOST
         Install the launcher as ~/bin/kontti on HOST (over ssh), with
         ~/images/kontti.sif as its default image, and the image where
-        the launcher there looks for it
+        the launcher there looks for it; also the git identity of
+        Claude and the terminfo entry of $TERM, if missing there
     kontti claude | shell | exec | config ...
         Run the launcher here
 
