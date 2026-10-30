@@ -40,7 +40,7 @@ Settings, in ${XDG_CONFIG_HOME:-~/.config}/kontti/config, lines NAME=VALUE
     image=${XDG_DATA_HOME:-~/.local/share}/kontti/kontti.sif
     network=isolated
 `kontti install` makes ~/images/kontti.sif the default image on the
-host.
+host, and host the default network.
 EOF
 }
 
@@ -54,7 +54,7 @@ usage_error() {
     exit 1
 }
 
-# kontti install replaces the line of image
+# kontti install replaces the lines of image and network
 home=~/claude
 image=${XDG_DATA_HOME:-$HOME/.local/share}/kontti/kontti.sif
 network=isolated

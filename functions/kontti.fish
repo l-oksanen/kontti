@@ -36,7 +36,8 @@ USAGE
         for it
     kontti install HOST
         Install the launcher as ~/bin/kontti on HOST (over ssh), with
-        ~/images/kontti.sif as its default image, and the image where
+        ~/images/kontti.sif as its default image and host as its
+        default network, and the image where
         the launcher there looks for it; also the git identity of
         Claude and the terminfo entry of $TERM, if missing there
     kontti claude | shell | exec | config ...
@@ -118,11 +119,18 @@ end
 
 function _kontti_launcher --argument-names dir
     # The launcher for a host, whose default image is ~/images/kontti.sif
-    if test (string match -r -- '^image=' <$dir/kontti.sh | count) -ne 1
-        echo "kontti: $dir/kontti.sh has not one line image=" >&2
-        return 1
+    # and default network host: the nodes of a cluster often reach the
+    # internet only through a proxy of the site, which network=isolated
+    # would bypass
+    set -l launcher (cat $dir/kontti.sh)
+    for name in image network
+        if test (string match -r -- "^$name=" $launcher | count) -ne 1
+            echo "kontti: $dir/kontti.sh has not one line $name=" >&2
+            return 1
+        end
     end
-    string replace -r -- '^image=.*' 'image=~/images/kontti.sif' <$dir/kontti.sh
+    string replace -r -- '^image=.*' 'image=~/images/kontti.sif' $launcher \
+        | string replace -r -- '^network=.*' 'network=host'
 end
 
 function _kontti_quote --description 'Quote arguments for a POSIX shell'

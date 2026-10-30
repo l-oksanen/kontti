@@ -22,16 +22,21 @@ network: on a desktop, the X server, D-Bus, ibus and kitty's remote
 control listen on abstract Unix sockets, which belong to the network,
 not to the file system, and let in any process of your user (`ss -xl |
 grep @` lists them, `xhost` shows `SI:localuser:`). With
-`network=isolated`, the default, the container has a network of its
-own with only loopback, and reaches the internet through a proxy that
-the launcher runs on the host for the length of the run (`http_proxy`,
+`network=isolated`, the default on your machine, the container has a
+network of its own with only loopback, and reaches the internet through
+a proxy that the launcher runs on the host for the length of the run
+(`http_proxy`,
 `https_proxy`; a Unix socket bound into the container, outside the
 home). The proxy connects only to public addresses: not to the services
 of the host or of the local network. Claude Code, git over https, curl,
 uv, elan and lake go through it; git over ssh does not work. The host
-needs python3 for the proxy. With `network=host` the container shares
-the network of the host, and its proxy settings: for a cluster whose
-compute nodes reach the internet only through a proxy of the site.
+needs python3 for the proxy. With `network=host`, the default on a
+host of `kontti install`, the container shares the network of the host,
+and its proxy settings: the compute nodes of a cluster often reach the
+internet only through a proxy of the site, which the proxy of
+`network=isolated` would bypass. The container then reaches what the
+host reaches: the services of other users of the host listening on
+`localhost`, and the site's internal network.
 
 Claude Code, its login and the toolchains live in
 the home, and Claude Code updates itself there. The image has elan (the
@@ -84,7 +89,8 @@ network=isolated
 ```
 
 The image is in `$XDG_DATA_HOME` if that is set. `kontti install` makes
-`~/images/kontti.sif` the default image of the launcher on the host.
+`~/images/kontti.sif` the default image of the launcher on the host,
+and `host` its default network.
 `kontti build` writes the image where the local launcher looks for it,
 `kontti install` where the launcher on the host does.
 `kontti install` also gives Claude's commits an identity (`Claude
@@ -117,8 +123,8 @@ git fetch --upload-pack='bin/kontti exec git-upload-pack' HOST:/home/me/claude/w
    nothing of the host's (no `SSH_*`, no work or project directories).
    Look for the site's own directories too (shared work, project and
    application directories): they must be missing. A site may forbid `--no-mount bind-paths`; then kontti
-   fails, and must not be used there as it is. With `network=isolated`,
-   `kontti exec sh -c 'grep -c @ /proc/net/unix; curl -sI
+   fails, and must not be used there as it is. With `network=isolated`
+   (see 3), `kontti exec sh -c 'grep -c @ /proc/net/unix; curl -sI
    https://example.com'` prints 0 (no abstract sockets) and the headers.
 2. `kontti claude` in a directory under the home (Claude Code asks for
    trust in the home itself at every start): installs Claude Code; log
@@ -127,10 +133,11 @@ git fetch --upload-pack='bin/kontti exec git-upload-pack' HOST:/home/me/claude/w
    new -A -s NAME 'kontti claude'`. On a cluster, long sessions may have
    to run in a job: tmux on the login node, and in it e.g. `srun --pty
    ... kontti claude`. Check that apptainer and the network work on the
-   compute nodes; if they reach the internet only through a proxy of
-   the site (`http_proxy` and the like, e.g. from a module), set
-   `network=host` in `~/.config/kontti/config` of the host, so that its
-   proxy settings reach the container. For 24-bit colours in tmux, tmux must
+   compute nodes. With `network=host`, the default, the proxy settings
+   of the site (`http_proxy` and the like, e.g. from a module) reach the
+   container. If the nodes reach the internet without them, and
+   apptainer there allows `--net --network none`, set `network=isolated`
+   in `~/.config/kontti/config` of the host. For 24-bit colours in tmux, tmux must
    know that the terminal takes them, and Claude Code needs
    `COLORTERM=truecolor` (ssh does not pass it), e.g. in `~/.tmux.conf`
    of the host (here for kitty; `mouse` scrolls with the wheel):

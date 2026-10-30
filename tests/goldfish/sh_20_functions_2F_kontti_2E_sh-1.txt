@@ -33,4 +33,4 @@ Settings, in ${XDG_CONFIG_HOME:-~/.config}/kontti/config, lines NAME=VALUE
     image=${XDG_DATA_HOME:-~/.local/share}/kontti/kontti.sif
     network=isolated
 `kontti install` makes ~/images/kontti.sif the default image on the
-host.
+host, and host the default network.
