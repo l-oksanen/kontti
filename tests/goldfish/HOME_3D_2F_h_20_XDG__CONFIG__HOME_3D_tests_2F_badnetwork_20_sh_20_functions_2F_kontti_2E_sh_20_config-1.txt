@@ -1,0 +1,1 @@
+kontti: network is isolated or host, not 'open' (in tests/badnetwork/kontti/config)

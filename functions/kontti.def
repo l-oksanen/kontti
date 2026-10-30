@@ -5,7 +5,7 @@ From: ubuntu:24.04
     export DEBIAN_FRONTEND=noninteractive
     apt-get update
     apt-get install -y --no-install-recommends \
-        ca-certificates curl git ripgrep jq less procps unzip xz-utils zstd python3 \
+        ca-certificates curl git ripgrep jq less procps unzip xz-utils zstd python3 socat \
         kitty-terminfo
     rm -rf /var/lib/apt/lists/*
     # elan in the image, the toolchains in ~/.elan of the home: each

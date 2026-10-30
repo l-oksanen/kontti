@@ -7,20 +7,30 @@ USAGE
         bash
     kontti exec COMMAND [ARG...]
         COMMAND
-    kontti config [home | image]
-        Print the settings (home and image), or one of them
+    kontti config [home | image | network]
+        Print the settings, or one of them
 
 The container's home is a directory of the host (default ~/claude),
 mounted at the same path; nothing else of the host is visible, nor its
-environment, but TERM, COLORTERM, the proxy settings, LEAN_NUM_THREADS
-and the job's SLURM_JOB_ID, SLURM_CPUS_PER_TASK, SLURM_MEM_PER_NODE and
+environment, but TERM, COLORTERM, LEAN_NUM_THREADS and the job's
+SLURM_JOB_ID, SLURM_CPUS_PER_TASK, SLURM_MEM_PER_NODE and
 SLURM_JOB_END_TIME. The working directory is the current one if it is in the
 home, the home otherwise. /tmp is ${TMPDIR:-/tmp}/kontti-$USER of the
 host, shared by the containers of the user.
+
+The network:
+    isolated  The container has only a loopback of its own, and reaches
+              the internet through a proxy that the launcher runs
+              (http_proxy, https_proxy), which connects to public
+              addresses only: not to the services of the host, nor to
+              its sockets (X, D-Bus, kitty), which let in any process of
+              the user. Needs python3 on the host.
+    host      The network of the host, and its proxy settings.
 
 Settings, in ${XDG_CONFIG_HOME:-~/.config}/kontti/config, lines NAME=VALUE
 (a leading ~/ is the home of the host):
     home=~/claude
     image=${XDG_DATA_HOME:-~/.local/share}/kontti/kontti.sif
+    network=isolated
 `kontti install` makes ~/images/kontti.sif the default image on the
 host.
