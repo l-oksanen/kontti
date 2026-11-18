@@ -13,6 +13,12 @@ function kontti
                 return 1
             end
             _kontti_build $dir
+        case image
+            if set -q argv[2]
+                echo 'Usage: kontti image' >&2
+                return 1
+            end
+            _kontti_image
         case install
             if test (count $argv) -ne 2
                 echo 'Usage: kontti install HOST' >&2
@@ -32,14 +38,18 @@ function _kontti_help
 
 USAGE
     kontti build
-        Build the image from kontti.def, where the launcher here looks
-        for it
+        Build the image of kontti from kontti.def
+    kontti image
+        Print the path of the image of kontti,
+        ${XDG_DATA_HOME:-~/.local/share}/kontti/kontti.sif: the default
+        image of the launcher here, which the setting image can change
+        to another (one built on this one, say)
     kontti install HOST
         Install the launcher as ~/bin/kontti on HOST (over ssh), with
         ~/images/kontti.sif as its default image and host as its
-        default network, and the image where
-        the launcher there looks for it; also the git identity of
-        Claude and the terminfo entry of $TERM, if missing there
+        default network, and the image of kontti there; also the git
+        identity of Claude and the terminfo entry of $TERM, if missing
+        there
     kontti claude | shell | exec | config ...
         Run the launcher here
 
@@ -48,9 +58,16 @@ The launcher (kontti.sh, POSIX sh):
     sh (status dirname)/kontti.sh --help
 end
 
+function _kontti_image
+    set -l data ~/.local/share
+    if test -n "$XDG_DATA_HOME"
+        set data $XDG_DATA_HOME
+    end
+    echo $data/kontti/kontti.sif
+end
+
 function _kontti_build --argument-names dir
-    set -l image (sh $dir/kontti.sh config image)
-    or return 1
+    set -l image (_kontti_image)
     mkdir -p (path dirname -- $image)
     or return 1
     # Built next to the image and renamed: running containers keep the
@@ -65,8 +82,7 @@ function _kontti_build --argument-names dir
 end
 
 function _kontti_install --argument-names dir host
-    set -l image (sh $dir/kontti.sh config image)
-    or return 1
+    set -l image (_kontti_image)
     if not test -f $image
         echo "kontti: no image $image (kontti build)" >&2
         return 2

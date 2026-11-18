@@ -65,6 +65,7 @@ apptainer config fakeroot --add $USER`).
 
 ```fish
 kontti build          # the image, from kontti.def
+kontti image          # its path
 kontti install HOST   # ~/bin/kontti and ~/images/kontti.sif on HOST, over ssh
 ```
 
@@ -91,8 +92,24 @@ network=isolated
 The image is in `$XDG_DATA_HOME` if that is set. `kontti install` makes
 `~/images/kontti.sif` the default image of the launcher on the host,
 and `host` its default network.
-`kontti build` writes the image where the local launcher looks for it,
-`kontti install` where the launcher on the host does.
+`kontti build` writes the image of kontti to the default path of the
+local launcher (`kontti image`), and `kontti install` copies it to that
+of the launcher on the host. Both ignore the setting `image`, which
+chooses what the launcher runs: an image of your own can build on the
+image of kontti and add tools,
+
+```
+Bootstrap: localimage
+From: {{ base }}
+
+%post
+    apt-get update
+    apt-get install -y --no-install-recommends ...
+    rm -rf /var/lib/apt/lists/*
+```
+
+built with `apptainer build --fakeroot --build-arg base=(kontti image)
+IMAGE DEF` and run with `image=IMAGE`.
 `kontti install` also gives Claude's commits an identity (`Claude
 <noreply@anthropic.com>`, unless the home has one), copies the
 terminfo entry of `$TERM` into `~/.terminfo` of the host if the host

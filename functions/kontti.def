@@ -6,7 +6,7 @@ From: ubuntu:24.04
     apt-get update
     apt-get install -y --no-install-recommends \
         ca-certificates curl git ripgrep jq less procps unzip xz-utils zstd python3 socat \
-        kitty-terminfo
+        kitty-terminfo file bsdextrautils binutils time zip
     rm -rf /var/lib/apt/lists/*
     # elan in the image, the toolchains in ~/.elan of the home: each
     # project names its own (lean-toolchain), which elan installs at the

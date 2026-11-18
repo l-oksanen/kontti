@@ -2,14 +2,18 @@ Build and install the container of kontti, and run its launcher
 
 USAGE
     kontti build
-        Build the image from kontti.def, where the launcher here looks
-        for it
+        Build the image of kontti from kontti.def
+    kontti image
+        Print the path of the image of kontti,
+        ${XDG_DATA_HOME:-~/.local/share}/kontti/kontti.sif: the default
+        image of the launcher here, which the setting image can change
+        to another (one built on this one, say)
     kontti install HOST
         Install the launcher as ~/bin/kontti on HOST (over ssh), with
         ~/images/kontti.sif as its default image and host as its
-        default network, and the image where
-        the launcher there looks for it; also the git identity of
-        Claude and the terminfo entry of $TERM, if missing there
+        default network, and the image of kontti there; also the git
+        identity of Claude and the terminfo entry of $TERM, if missing
+        there
     kontti claude | shell | exec | config ...
         Run the launcher here
 
